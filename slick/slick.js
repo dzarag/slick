@@ -426,7 +426,7 @@
 
             }
 
-            _.slideHandler( slideTo );
+            _.slideHandler( slideTo , false, false, "auto" );
 
         }
 
@@ -701,14 +701,14 @@
             case 'previous':
                 slideOffset = indexOffset === 0 ? _.options.slidesToScroll : _.options.slidesToShow - indexOffset;
                 if (_.slideCount > _.options.slidesToShow) {
-                    _.slideHandler(_.currentSlide - slideOffset, false, dontAnimate);
+                    _.slideHandler(_.currentSlide - slideOffset, false, dontAnimate, event.data.message);
                 }
                 break;
 
             case 'next':
                 slideOffset = indexOffset === 0 ? _.options.slidesToScroll : indexOffset;
                 if (_.slideCount > _.options.slidesToShow) {
-                    _.slideHandler(_.currentSlide + slideOffset, false, dontAnimate);
+                    _.slideHandler(_.currentSlide + slideOffset, false, dontAnimate, event.data.message);
                 }
                 break;
 
@@ -716,7 +716,7 @@
                 var index = event.data.index === 0 ? 0 :
                     event.data.index || $target.index() * _.options.slidesToScroll;
 
-                _.slideHandler(_.checkNavigable(index), false, dontAnimate);
+                _.slideHandler(_.checkNavigable(index), false, dontAnimate, event.data.message);
                 $target.children().trigger('focus');
                 break;
 
@@ -1589,13 +1589,13 @@
 
     };
 
-    Slick.prototype.postSlide = function(index) {
+    Slick.prototype.postSlide = function(index, triggeredBy) {
 
         var _ = this;
 
         if( !_.unslicked ) {
 
-            _.$slider.trigger('afterChange', [_, index]);
+            _.$slider.trigger('afterChange', [_, index, triggeredBy]);
 
             _.animating = false;
 
@@ -2352,11 +2352,11 @@
 
         }
 
-        _.slideHandler(index);
+        _.slideHandler(index,false, false, "select");
 
     };
 
-    Slick.prototype.slideHandler = function(index, sync, dontAnimate) {
+    Slick.prototype.slideHandler = function(index, sync, dontAnimate, triggeredBy) {
 
         var targetSlide, animSlide, oldSlide, slideLeft, targetLeft = null,
             _ = this, navTarget;
@@ -2390,10 +2390,10 @@
                 targetSlide = _.currentSlide;
                 if (dontAnimate !== true) {
                     _.animateSlide(slideLeft, function() {
-                        _.postSlide(targetSlide);
+                        _.postSlide(targetSlide, triggeredBy);
                     });
                 } else {
-                    _.postSlide(targetSlide);
+                    _.postSlide(targetSlide, triggeredBy);
                 }
             }
             return;
@@ -2402,10 +2402,10 @@
                 targetSlide = _.currentSlide;
                 if (dontAnimate !== true) {
                     _.animateSlide(slideLeft, function() {
-                        _.postSlide(targetSlide);
+                        _.postSlide(targetSlide, triggeredBy);
                     });
                 } else {
-                    _.postSlide(targetSlide);
+                    _.postSlide(targetSlide, triggeredBy);
                 }
             }
             return;
@@ -2460,11 +2460,11 @@
                 _.fadeSlideOut(oldSlide);
 
                 _.fadeSlide(animSlide, function() {
-                    _.postSlide(animSlide);
+                    _.postSlide(animSlide, triggeredBy);
                 });
 
             } else {
-                _.postSlide(animSlide);
+                _.postSlide(animSlide, triggeredBy);
             }
             _.animateHeight();
             return;
@@ -2472,10 +2472,10 @@
 
         if (dontAnimate !== true) {
             _.animateSlide(targetLeft, function() {
-                _.postSlide(animSlide);
+                _.postSlide(animSlide, triggeredBy);
             });
         } else {
-            _.postSlide(animSlide);
+            _.postSlide(animSlide, triggeredBy);
         }
 
     };
@@ -2590,7 +2590,7 @@
 
             if( direction != 'vertical' ) {
 
-                _.slideHandler( slideCount );
+                _.slideHandler( slideCount , false, false, "swipe" );
                 _.touchObject = {};
                 _.$slider.trigger('swipe', [_, direction ]);
 
@@ -2600,7 +2600,7 @@
 
             if ( _.touchObject.startX !== _.touchObject.curX ) {
 
-                _.slideHandler( _.currentSlide );
+                _.slideHandler( _.currentSlide , false, false, "swipe" );
                 _.touchObject = {};
 
             }
